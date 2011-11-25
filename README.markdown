@@ -8,6 +8,7 @@ Cartographer
 * Drop-in-replacement for older version of cartographer (which only worked with google maps v2)
 * Support for MarkerManager v3
 * Support for MarkerClusterer v3
+* Support for AdSense for Maps (v3 only)
 * You can easily define custom icons for cluster
 * Works with Rails 3+ and also works on older rails versions to provide backward compatibility
 
@@ -20,16 +21,15 @@ if you want to use google maps v3, set this constant as first line of environmen
 
 In your controller...
 <pre><code>
-@map = Cartographer::Gmap.new( 'map' )
-@map.zoom = :bound
-@icon = Cartographer::Gicon.new()
-@map.icons &lt;&lt;  @icon
-marker1 = Cartographer::Gmarker.new(:name=&gt; &quot;taj_mahal&quot;, :marker_type =&gt; &quot;Building&quot;,
-           :position =&gt; [27.173006,78.042086],
-           :info_window_url =&gt; &quot;/url_for_info_content&quot;, :icon =&gt; @icon)
-marker2 = Cartographer::Gmarker.new(:name=&gt; &quot;raj_bhawan&quot;, :marker_type =&gt; &quot;Building&quot;,
-           :position =&gt; [28.614309,77.201353],
-           :info_window_url =&gt; &quot;/url_for_info_content&quot;, :icon =&gt; @icon)
+  @map = Cartographer::Gmap.new( 'map' )
+  @map.zoom = :bound
+  @map.icons &lt;&lt; Cartographer::Gicon.new
+  marker1 = Cartographer::Gmarker.new(:name=&gt; &quot;taj_mahal&quot;, :marker_type =&gt; &quot;Building&quot;,
+              :position =&gt; [27.173006,78.042086],
+              :info_window_url =&gt; &quot;/url_for_info_content&quot;)
+  marker2 = Cartographer::Gmarker.new(:name=&gt; &quot;raj_bhawan&quot;, :marker_type =&gt; &quot;Building&quot;,
+              :position =&gt; [28.614309,77.201353],
+              :info_window_url =&gt; &quot;/url_for_info_content&quot;)
 
 @map.markers &lt;&lt; marker1
 @map.markers &lt;&lt; marker2
@@ -41,6 +41,7 @@ In your view...
   # for Rails 3+ you need to make use of 'raw'
   &lt;%= raw Cartographer::Header.new.to_s %&gt;
   &lt;%= raw @map.to_html %&gt;
+  &lt;div style=&quot;width:600px;height:400px;&quot; id=&quot;map&quot; &gt; [Map] &lt;/div&gt;
 </code></pre>
 
 Here is another example with custom icons + clustering
@@ -103,16 +104,39 @@ Here is another example with custom icons + clustering
   @map.markers &lt;&lt; marker2
 </code></pre>
 
-### Sample app
-   If you want a quickest way to get started, you can download a sample app here https://github.com/downloads/parolkar/cartographer/carto_test.tgz
-   Its a rails 3 app, run the server and point your browser to http://localhost:3000/welcome/index
+Adsense for Maps
+----------------
 
+To use [Google AdSense for Maps](http://code.google.com/apis/maps/documentation/javascript/advertising.html) with Cartographer you need to define an ad object in <tt>Cartographer::Gad</tt>.
+
+For example, for a map defined as <tt>@map</tt> in your controller, you would use:
+<pre><code>
+  @map.ad = Cartographer::Gad.new(
+    :format       => "SKYSCRAPER",
+    :div          => "div",
+    :position     => "RIGHT_TOP",
+    :map          => "map",
+    :visible      => true,
+    :publisher_id => "YOUR_PUBLISHER_ID"
+  )
+</code></pre>
+
+* Make sure you replace <tt>"YOUR_PUBLISHER_ID"</tt> with your AdSense publisher ID.
+* The different formats that the ad can be are [defined here](http://code.google.com/apis/maps/documentation/javascript/advertising.html#AdUnitFormats).
+* The different positions the ad can be placed on the map are [defined here](http://code.google.com/apis/maps/documentation/javascript/controls.html#ControlPositioning).
 
 Install
 -------
+
+You can install either with the rails plugin command or by git submoduling it into your vendor/plugins directory.  Note that with the latter, your deploy process needs to initialize and update git submodules; this is not the case by default on Heroku.
+
 <pre><code>
   cd rails_app
-  git clone git://github.com/parolkar/cartographer.git vendor/plugins/cartographer
+  rails plugin install git://github.com/joshuamiller/cartographer.git
+</code></pre>
+or
+<pre><code>
+  git clone git://github.com/joshuamiller/cartographer.git vendor/plugins/cartographer
 </code></pre>
 
 
